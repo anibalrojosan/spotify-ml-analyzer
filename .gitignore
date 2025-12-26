@@ -1,0 +1,72 @@
+# ========================
+# OS
+# ========================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ========================
+# SEGURIDAD Y VARIABLES DE ENTORNO
+# ========================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ========================
+# BACKEND (PYTHON / DJANGO)
+# ========================
+# Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual envs
+venv/
+env/
+.venv/
+backend/venv/
+
+# Local DB (SQLite)
+db.sqlite3
+db.sqlite3-journal
+
+# Static and media files (Django)
+static_root/
+media_root/
+
+# Django logs
+*.log
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# ========================
+# FRONTEND (NODE / REACT)
+# ========================
+# Dependencies
+node_modules/
+
+# Prod files (Vite/React build)
+dist/
+build/
+
+# npm/yarn logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Tests coverage
+coverage/
+
+.eslintcache
+.npm/
+
+*.csv
+*.xlsx
+reports/
