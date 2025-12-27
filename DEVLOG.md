@@ -6,7 +6,7 @@ The goal is to maintain transparency throughout the process and generate a clear
 
 ---
 
-## [2025-12-26] - Day 0
+## [2025-12-26] - Step 0
 
 **Status:** 🟡 In Progress
 
@@ -28,5 +28,24 @@ The goal is to maintain transparency throughout the process and generate a clear
 ### Next Steps
 - Initialize the Django and React (Vite) projects.
 - Successfully run both servers simultaneously on my local machine.
+
+---
+
+## [2025-12-26] - Day 1: Walking Skeleton
+
+**Status:** ✅ Done
+
+**Focus:** Backend and Frontend environment installation (Issue #2).
+
+### 🛠 Progress
+- Successfully initialized the Django project using `uv`.
+- Created the React frontend using Vite.
+- **Milestone Reached:** Both servers (Django at port 8000 and React at port 5173) are running simultaneously. The "Walking Skeleton" is done!
+
+### 🐛 Challenges & Solutions
+* **Node.js Version Conflict:**
+    * **The Problem:** While setting up the frontend, `npm run dev` failed. The default Linux repository provided Node v18.19.1, but the latest version of Vite requires Node v20+ or v22+.
+    * **The Fix:** Instead of relying on the system's `apt` package manager, I installed **NVM (Node Version Manager)** so I can install Node v22 cleanly without sudo permissions.
+    * **Lesson:** Always check engine requirements for modern frontend tools; system defaults may be outdated.
 
 ---
