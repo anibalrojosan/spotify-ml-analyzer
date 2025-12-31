@@ -8,8 +8,6 @@ The goal is to maintain transparency throughout the process and generate a clear
 
 ## [2025-12-26] - Step 0
 
-**Status:** 🟡 In Progress
-
 **Focus:** Environment setup and architecture definition.
 
 ### Today's Objectives
@@ -33,8 +31,6 @@ The goal is to maintain transparency throughout the process and generate a clear
 
 ## [2025-12-26] - Day 1: Walking Skeleton
 
-**Status:** ✅ Done
-
 **Focus:** Backend and Frontend environment installation (Issue #2).
 
 ### 🛠 Progress
@@ -47,5 +43,20 @@ The goal is to maintain transparency throughout the process and generate a clear
     * **The Problem:** While setting up the frontend, `npm run dev` failed. The default Linux repository provided Node v18.19.1, but the latest version of Vite requires Node v20+ or v22+.
     * **The Fix:** Instead of relying on the system's `apt` package manager, I installed **NVM (Node Version Manager)** so I can install Node v22 cleanly without sudo permissions.
     * **Lesson:** Always check engine requirements for modern frontend tools; system defaults may be outdated.
+
+---
+
+## [2025-12-29]
+
+**Focus:** Data Acquisition Strategy & Initial EDA Pipeline
+
+### Progress:
+- Data Source: Acquired a comprehensive dataset of ~30,000 Spotify tracks to serve as a local development proxy.
+- Data Cleaning: Implemented cleaning logic using Pandas, specifically addressing duplicates and null values to ensure data integrity.
+- EDA: Started Exploratory Data Analysis to understand feature distributions (valence, energy, etc.) before modeling.
+
+### Challenges & Solutions:
+- **Challenge:** Encountered authentication blockers with the Spotify for Developers API, which halted the backend integration.
+- **Solution (Pivot):** Adopted a "Local Simulation" strategy. Instead of waiting on the API, I decided to use a static dataset to mock API responses. This allows the Data Science work to proceed in parallel while the authentication issues are resolved.
 
 ---
