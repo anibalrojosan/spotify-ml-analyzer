@@ -33,12 +33,12 @@ The goal is to maintain transparency throughout the process and generate a clear
 
 **Focus:** Backend and Frontend environment installation (Issue #2).
 
-### 🛠 Progress
+### Progress
 - Successfully initialized the Django project using `uv`.
 - Created the React frontend using Vite.
 - **Milestone Reached:** Both servers (Django at port 8000 and React at port 5173) are running simultaneously. The "Walking Skeleton" is done!
 
-### 🐛 Challenges & Solutions
+### Challenges & Solutions
 * **Node.js Version Conflict:**
     * **The Problem:** While setting up the frontend, `npm run dev` failed. The default Linux repository provided Node v18.19.1, but the latest version of Vite requires Node v20+ or v22+.
     * **The Fix:** Instead of relying on the system's `apt` package manager, I installed **NVM (Node Version Manager)** so I can install Node v22 cleanly without sudo permissions.
@@ -60,3 +60,24 @@ The goal is to maintain transparency throughout the process and generate a clear
 - **Solution (Pivot):** Adopted a "Local Simulation" strategy. Instead of waiting on the API, I decided to use a static dataset to mock API responses. This allows the Data Science work to proceed in parallel while the authentication issues are resolved.
 
 ---
+
+## [2025-12-30]
+
+**Focus:** Psychometric validation & Dimensional reduction
+### Progress: 
+- **Statistical Sanity Check**: Computed correlation matrices to identify multicollinearity. Confirmed that Valence and Energy are orthogonal (independent) dimensions in this dataset, validating their use as separate axes.
+- **Affective Mapping**: Implemented Russell’s Circumplex Model, plotting 30k tracks on the Valence-Energy plane to visualize emotional quadrants.
+- **Genre Clustering (Attempt 1)**: Visualized genre centroids to test if genre labels could predict emotional states. (Preliminary results suggest significant overlap).
+
+---
+
+## [2026-01-01]
+
+**Focus**: Variance analysis & Backend rule definition
+### Progress:
+- **Distribution Profiling**: Transitioned from centroid analysis to **Boxplot Distribution** analysis. Examined the variance of Valence, Energy, and Tempo across genres.
+- **Key Architectural Insight**: Discovered that mainstream genres (Pop, Latin) have high variance in emotional features, making them poor predictors of mood. Conversely, genres like EDM and Rock showed high rigidity in intensity.
+- **Backend Specification**: Defined the logic for the **Psychological Profile Engine**:
+    - Mood: Must be calculated at the **Track-Level** (atomic).
+    - Intensity: Can use Genre-Level heuristics (e.g., EDM implies High Energy).
+
