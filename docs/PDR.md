@@ -1,10 +1,10 @@
-# 📄 PRD: Spotify ML Analyzer & AI Agent
+# Product Requirements Document: Spotify ML Analyzer
 
 | Metadata | Details |
 | :--- | :--- |
 | **Project Name** | Spotify ML Analyzer |
 | **Version** | 2.0 (Simulation Pivot) |
-| **Status** | 🚧 Phase 2: In Development |
+| **Status** | Phase 2: In Development |
 | **Owner** | Aníbal Rojo |
 | **Last Updated** | Jan 2026 |
 
@@ -42,6 +42,19 @@ A resilient **"Full Stack Data Science"** application. Instead of relying solely
     * It generates a "Fake Profile" by randomly selecting a subset of songs from the dataset to simulate a `Recently Played` history.
     * This allows for full testing of ML algorithms without requiring real user data.
 
+### 4.1 Simulated User Archetypes (Cluster Definitions)
+To validate the application's ability to handle diverse musical tastes, the system initializes with **5 Pre-calculated Archetypes**. These were derived using K-Means Clustering on the dataset (`3.0-model-clustering-profiles`), segmenting users based on distinct Audio Feature patterns.
+
+These profiles act as the "selectable characters" during the Mock Login phase:
+
+| Cluster ID | Profile Name | Archetype Definition (Business Logic) | Key Trigger Features |
+| :--- | :--- | :--- | :--- |
+| **Cluster 3** | **The Organic / Relaxed** | User seeks calmness, disconnection, or focus. Prefers natural sounds over synthesized production. Likely engages in "Deep Work" or relaxation. | `High Acousticness`, `Low Energy` |
+| **Cluster 4** | **The Euphoric / Social** | User seeks dopamine and social connection. Prefers music that is explicitly happy and danceable. Indicative of "Party" or "Mood-Lifting" sessions. | `Max Valence`, `Max Danceability` |
+| **Cluster 1** | **The High Intensity** | User seeks adrenaline and power. Prefers fast, aggressive, or heavy music (Metal, Hard Techno, Gym). Focus is on physical stimulation, not necessarily happiness. | `Max Tempo (>130 BPM)`, `Max Energy` |
+| **Cluster 0** | **The Rhythmic Flow** | User seeks momentum and consistency. Prefers the steady 120-128 BPM range (House, Modern Pop) that maintains a "Flow State" without emotional extremes. | `Fixed Tempo (~125 BPM)`, `High Energy` |
+| **Cluster 2** | **The Mainstream Groove** | User seeks accessibility and balance. Prefers polished, radio-friendly structures with a good groove. Represents the versatile "middle ground" listener. | `High Danceability`, `Mid-High Energy` |
+
 ---
 
 ## 5. Functional Requirements
@@ -70,7 +83,7 @@ A resilient **"Full Stack Data Science"** application. Instead of relying solely
 * **Technology:** LLM API Integration (OpenAI GPT-4o / Gemini / DeepSeek).
 * **Workflow:**
     1.  Backend calculates aggregate stats (e.g., "80% Depressing, Top Genre: Shoegaze").
-    2.  **Prompt Engineering:** *"Act as a snobbish music critic and roast this user's taste..."*
+    2.  **Prompt Engineering:** *"Act as a snobbish music critic and give opinions about this user's taste..."*
     3.  Frontend displays the generated response as rich text.
 
 ---
@@ -83,10 +96,9 @@ A resilient **"Full Stack Data Science"** application. Instead of relying solely
 ---
 
 ## 7. Development Roadmap
-*Based on the Master Strategy.*
 
-* **Phase 1:** Infrastructure & Foundations (✅ Completed).
-* **Phase 2:** Data Engineering & ML Core (🚧 In Progress - Cleaning & KNN).
+* **Phase 1:** Infrastructure & Foundations (Completed).
+* **Phase 2:** Data Engineering & ML Core (In Progress - Cleaning & KNN).
 * **Phase 3:** API Services & AI Integration (Mock Auth & LLM).
 * **Phase 4:** Frontend Visualization (React Charts).
 * **Phase 5:** Production Polish & Deployment (Cloud).
@@ -95,14 +107,14 @@ A resilient **"Full Stack Data Science"** application. Instead of relying solely
 
 ## 8. Scope Analysis
 
-### ✅ In Scope (MVP)
+### In Scope (MVP)
 * CSV Dataset loading and EDA.
 * Mock Authentication System.
 * KNN Algorithm for "Similar Tracks."
 * Basic LLM Integration (1 personality/prompt).
 * Dashboard with 2 Key Charts (Radar & Scatter).
 
-### ❌ Out of Scope (Future)
+### Out of Scope (Future)
 * In-app Audio Playback (Requires Spotify Premium SDK).
 * Creating real Playlists on user account (Requires "Write" Scope).
 * Native Mobile App (React Native).

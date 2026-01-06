@@ -103,3 +103,20 @@ The goal is to maintain transparency throughout the process and generate a clear
 * **Feature Interpretation**: Used **PCA (Principal Component Analysis)** to visualize high-dimensional data in 2D. Identified PC1 as the "Intensity Spectrum" (Organic vs. Synthetic) and PC2 as the "Mood Spectrum" (Introspective vs. Social).
 * **Profile Definition**: Mapped the 5 clusters to specific backend archetypes: *The Organic/Relaxed*, *The Euphoric/Social*, *The High Intensity*, *The Rhythmic Flow*, and *The Mainstream Groove*.
 * **Code Refactoring**: Split the monolithic EDA notebook into `2.0-eda-mood-distribution` and `3.0-model-clustering-profiles`.
+
+## [2026-01-05] Project Planning & Requirements Definition
+
+**Focus**: Researching best practices for project documentation and drafting the Product Requirements Document (PRD).
+
+### Progress:
+* **Documentation Research**: Conducted an analysis of industry-standard planning documents to ensure a structured development lifecycle.
+
+* **Drafted the initial (PRD)**. This included:
+
+    * Defining the core problem and solution.
+
+    * Establishing the MVP scope to prevent scope creep.
+
+    * Outlining user stories and acceptance criteria.
+
+**Goal**: To establish a clear roadmap and functional specifications before the engineering phase begins.
