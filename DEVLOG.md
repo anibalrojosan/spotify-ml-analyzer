@@ -109,6 +109,7 @@ The goal is to maintain transparency throughout the process and generate a clear
 **Focus**: Researching best practices for project documentation and drafting the Product Requirements Document (PRD).
 
 ### Progress:
+
 * **Documentation Research**: Conducted an analysis of industry-standard planning documents to ensure a structured development lifecycle.
 
 * **Drafted the initial (PRD)**. This included:
@@ -120,3 +121,34 @@ The goal is to maintain transparency throughout the process and generate a clear
     * Outlining user stories and acceptance criteria.
 
 **Goal**: To establish a clear roadmap and functional specifications before the engineering phase begins.
+
+## [2026-01-06] Project Requirements Document & Technical Design Document
+
+**Status:** 🟢 Planning & design completed
+
+Today was entirely dedicated to moving from "abstract ideas" to a concrete engineering plan. Before continue writing production code, I wanted to ensure the architecture could handle the specific constraints of this project (latency, API limits, and the simulation phase).
+
+### Key Achievements
+
+1.  **Product Requirements Document (PRD) finalized:**
+    * Defined the scope of the MVP.
+    * Clarified the "Simulation Strategy": Since I don't have Spotify API access yet, I formally documented the pivot to using a **Kaggle Dataset** for the initial development phase.
+    * Established the core value proposition: **K-Means Clustering** (Math) + **LLM Analysis** (Psychology).
+
+2.  **Technical Design Document (TDD) created and finalized:**
+    * This was the heavy lifting of the day. I chose a **Synchronous Monolithic Architecture** using Django.
+    * **Crucial Decision:** To avoid HTTP timeouts (since ML and OpenAI calls are slow), I designed a **"Store-First, Analyze-Later"** pattern.
+        * Endpoint A (`/sync`): Fetches data and saves to DB (Fast).
+        * Endpoint B (`/report`): Reads local DB and runs K-Means (Safe).
+
+3.  **Visualizing the Architecture (Mermaid.js):**
+    * Created the Sequence Diagrams to map the split data flow.
+    * Designed the Entity-Relationship Diagram (ERD), adding a `UserInsight` table to cache the expensive LLM responses.
+    * *Lesson Learned:* Mermaid diagrams render differently on GitHub vs. local editors. I decided to export high-res PNGs for the README and docs to ensure consistency.
+
+4.  **README Overhaul:**
+    * Updated the public documentation to reflect the technical reality.
+    * Added the new architecture diagrams and clarified the roadmap phases (Offline vs. Live).
+
+### Technical Takeaway
+It's tempting to jump straight into coding `views.py`, and continue coding indefinely, but the complexity of the project and all it's layers make difficult to have a clear view of what things needs to be done and when (earlier or after another features). Writing the **TDD** first saved me from a future headache. I almost designed a single blocking endpoint that would have definitely crashed the browser on slow networks. Splitting the logic into **ETL** vs **Inference** phases at the design stage was a win. From now on I have these documents as a quick reference that allows a clearer view of what needs to be built.
