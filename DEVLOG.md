@@ -81,3 +81,25 @@ The goal is to maintain transparency throughout the process and generate a clear
     - Mood: Must be calculated at the **Track-Level** (atomic).
     - Intensity: Can use Genre-Level heuristics (e.g., EDM implies High Energy).
 
+---
+
+## [2026-01-02]
+
+**Focus**: Unsupervised Learning setup & Architecture research
+
+### Progress:
+
+* **Architecture Research**: Investigated **Decoupled Client-Server Architecture** patterns. Confirmed the strategy to use Django as a pure REST API provider serving JSON and React as a standalone consumer, ensuring separation of concerns between Data Science logic and UI.
+* **EDA Pivot**: Shifted focus from descriptive statistics to **Unsupervised Machine Learning**. Prepared the dataset for clustering by removing noise and applying `StandardScaler` to normalize audio features (loudness, tempo, energy).
+* **K-Means Initialization**: Implemented the **Elbow Method** to determine the optimal number of clusters. Analyzed inertia plots to identify potential inflection points between 4 and 6 clusters.
+
+## [2026-01-03]
+
+**Focus**: Clustering Model Finalization & Archetype definition
+
+### Progress:
+
+* **Model Selection**: Finalized the K-Means training and analysis. Evaluated performance using **Silhouette Score** and **Davies-Bouldin Index**, determining that 5 clusters offered better separation and psychological interpretability than 4 or 6.
+* **Feature Interpretation**: Used **PCA (Principal Component Analysis)** to visualize high-dimensional data in 2D. Identified PC1 as the "Intensity Spectrum" (Organic vs. Synthetic) and PC2 as the "Mood Spectrum" (Introspective vs. Social).
+* **Profile Definition**: Mapped the 5 clusters to specific backend archetypes: *The Organic/Relaxed*, *The Euphoric/Social*, *The High Intensity*, *The Rhythmic Flow*, and *The Mainstream Groove*.
+* **Code Refactoring**: Split the monolithic EDA notebook into `2.0-eda-mood-distribution` and `3.0-model-clustering-profiles`.

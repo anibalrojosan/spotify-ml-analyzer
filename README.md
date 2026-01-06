@@ -30,18 +30,31 @@ This project implements a decoupled architecture to simulate a real-world "Full 
 ### Frontend (User Experience)
 * **React.js (Vite):** Dynamic and fast UI.
 * **Recharts:** Data visualization library for radar charts.
-* **Bootstrap 5:** Responsive and clean layout.
 
 ---
 
 ## Development Roadmap
 
-I am using an "Atomic Development" methodology to build this step-by-step:
+This project follows a 5-stage evolutionary path, moving from local simulation to a production-ready Full Stack application.
 
-- [ ] **Phase 1: Foundations** (Monorepo Setup, Django & React configurations).
-- [ ] **Phase 2: The Handshake** (OAuth 2.0 Authentication with Spotify).
-- [ ] **Phase 3: Data Pipeline** (Data extraction and processing with Pandas).
-- [ ] **Phase 4: Visualization** (Interactive Frontend and Charts).
+> ⚠️ **Project Status Update (Jan 2025): Due to temporary restrictions on the Spotify Developer Dashboard (blocking new app creation), this project has pivoted to a **"Simulation Architecture"**. Instead of live API calls, the backend now uses a rich **Kaggle Dataset (30k+ songs)** and a **Mock Authentication Layer** to emulate the full application flow. The logic remains production-ready for when API access is restored.
+
+### **Phase 1: Infrastructure & Foundations** (✅ Completed)
+> **Goal:** Monorepo setup, environment configuration, and technology stack initialization (Django + React).
+
+### **Phase 2: Data Engineering & ML Core** (In Progress)
+> **Goal:** Implementing the "Simulation Engine." This involves processing the raw Kaggle dataset (30k+ songs), performing EDA, and integrating the K-Nearest Neighbors (KNN) algorithm directly into the backend logic.
+
+### **Phase 3: API Services & AI Integration** (Pending)
+> **Goal:** Exposing the data through a robust Django REST API.
+> * **Mock Auth:** Bypassing Spotify's OAuth for development.
+> * **GenAI Agent:** Integrating an **LLM (Large Language Model)** to generate textual, psychological insights based on the user's musical DNA.
+
+### **Phase 4: Frontend Visualization & Dashboard** (Pending)
+> **Goal:** Building the reactive User Interface. Translating raw JSON data into interactive Radar Charts, Scatter Plots, and displaying the LLM-generated insights.
+
+### **Phase 5: Production Polish & Deployment** (Pending)
+> **Goal:** Final optimization, Dockerization, and cloud deployment (Railway/Vercel). Preparation for the potential switch from "Mock Data" to live Spotify API integration.
 
 ---
 
