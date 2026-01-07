@@ -1,0 +1,24 @@
+# GITHUB STATISTICS
+*.ipynb linguist-vendored
+
+# LINE ENDING NORMALIZATION
+* text=auto
+
+# ML MODELS (Binary Files)
+*.pkl binary
+*.joblib binary
+*.h5 binary
+*.pt binary
+*.onnx binary
+
+# IMAGES
+*.png binary
+*.jpg binary
+*.jpeg binary
+
+# DOWNLOAD CLEANUP
+# If someone downloads the repo using the 'Download ZIP' button, these files will be excluded.
+.gitattributes export-ignore
+.gitignore export-ignore
+.env export-ignore
+.DS_Store export-ignore
