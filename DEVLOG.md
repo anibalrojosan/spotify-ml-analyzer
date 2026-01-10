@@ -152,3 +152,27 @@ Today was entirely dedicated to moving from "abstract ideas" to a concrete engin
 
 ### Technical Takeaway
 It's tempting to jump straight into coding `views.py`, and continue coding indefinely, but the complexity of the project and all it's layers make difficult to have a clear view of what things needs to be done and when (earlier or after another features). Writing the **TDD** first saved me from a future headache. I almost designed a single blocking endpoint that would have definitely crashed the browser on slow networks. Splitting the logic into **ETL** vs **Inference** phases at the design stage was a win. From now on I have these documents as a quick reference that allows a clearer view of what needs to be built.
+
+## [2026-01-06]  Stopping to Check the Roadmap
+
+**Status:** Strategy Alignment
+
+Before developing the app further i wanted to slow down to have a clearer view of whats next.
+
+As I dove deeper into the **Phase 2** development (building the Mock Simulation Engine), I realized a dangerous ambiguity was forming. My Architecture document (`TDD`) described a "Live" system connected to Spotify's API and PostgreSQL, but my current reality is a "Simulation" system running off a static CSV due to API blocks. Also this confused me on what nexts steps were the correct ones, and what needs to be tackled now. Working without acknowledging this discrepancy is how technical debt is born.
+
+As time passes, the issues that I had set seems not so clear anymore ("why I chose to do those tasks next?). So I needed an 'update' on these issues.
+
+**What I did today:**
+I paused development to consolidate my PRD, Architecture, and GitHub Issues into a single "Source of Truth": the **`ROADMAP.md`**.
+
+**Why this matters:**
+* **Architecture Honesty:** The Roadmap now explicitly splits the project into "Simulation Mode" (Current) and "Live Mode" (Future). This gives me permission to write "Throwaway Code" (like the CSV Loader) without feeling guilty that it doesn't match the final architecture.
+* **Mental Clarity:** Instead of holding the entire plan in my head or on disperse notes, I have a document that tells me exactly what "Done" looks like for Phase 2.
+* **Prioritization:** The "Real Spotify Auth" was moved to the Icebox (Phase 4). Now, the path to the MVP is unblocked.
+
+**Takeaway:**
+Coding it's not so hard. But it takes a lot of attention that quickly disolves the greater picture. A clear direction, and mantain clarity about it is hard. So a ROADMAP comes very handy for later planning.
+
+**Next Up:**
+Continue with Phase 2. Start with Task **2.2 Backend Simulation Service**.
