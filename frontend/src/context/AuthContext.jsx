@@ -1,7 +1,16 @@
-import React, { createContext, useState } from 'react';
-import client from '../api/axiosClient';
+import React, { createContext, useState, useContext } from 'react';
+import client from '../api/axiosClient.js';
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error("useAuth must be used inside an AuthProvider");
+    }
+    return context;
+};
 
 export const AuthProvider = ({ children }) => {
     
@@ -32,10 +41,10 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('spotify_user', JSON.stringify(user));
             localStorage.setItem('spotify_token', auth.access_token);
 
-            console.log("✅ Simulation Login Successful:", user.display_name);
+            console.log("Simulation Login Successful:", user.display_name);
 
         } catch (error) {
-            console.error("❌ Login Failed:", error);
+            console.error("Login Failed:", error);
             alert("Login failed. Is the Django backend running?");
         }
     };
@@ -47,7 +56,7 @@ export const AuthProvider = ({ children }) => {
         setToken(null);
         localStorage.removeItem('spotify_user');
         localStorage.removeItem('spotify_token');
-        console.log("👋 User Logged Out");
+        console.log("User Logged Out");
     };
 
 
