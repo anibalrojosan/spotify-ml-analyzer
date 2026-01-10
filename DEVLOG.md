@@ -176,3 +176,23 @@ Coding it's not so hard. But it takes a lot of attention that quickly disolves t
 
 **Next Up:**
 Continue with Phase 2. Start with Task **2.2 Backend Simulation Service**.
+
+## [2026-01-10] Building the simulation engine (Backend Layer)
+
+**Status:** Backend implementation
+
+After defining the Roadmap, it was time for execution. I successfully implemented the core simulation logic that allows the app to function without the live Spotify API.
+
+**What I built:**
+* **The Data Engine:** Implemented `SpotifyDataLoader` in `utils/`.
+    * *Technical Detail:* Used the **Singleton Pattern** and Lazy Loading to ingest the 30k row CSV into memory only once. This prevents disk I/O bottlenecks on every request.
+* **The Mock Auth System:** Created the `MockAuthView` endpoint (`POST /api/auth/login/`).
+    * Instead of a simple "Success", this view acts as a **User Factory**. It assigns one of the **5 User Archetypes** (defined in the Clustering analysis).
+    * *Feature:* I added logic to force a specific archetype via `request.data` (e.g., `{"archetype_id": 1}`). This makes the system **Deterministic for Testing** but **Random for Demoing**.
+* **API Plumbing:** Configured `django.urls` to expose the API.
+
+**Verification:**
+Validated the endpoint using `curl`. The server now responds with a structured JSON containing a fake User Profile and Access Token, mimicking the real Spotify response structure.
+
+**Next Up:**
+The Backend is ready. Now it's time to tackle the Frontend.
