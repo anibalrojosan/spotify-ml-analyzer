@@ -55,12 +55,12 @@ spotify-analyzer/
 ```
 
 ## Tech Stack
-* **Frontend:** `React` / `Next.js` + `Tailwind CSS` + `Recharts`/`D3`.
-* **Backend:** `Python 3.12+`, `Django 5.x`, `Django REST Framework (DRF)`.
-* **Data Science:** `Scikit-learn` (K-Means, KNN), `Pandas`, `NumPy`.
-* **GenAI:** `Gemini API` (Personality Insights & Roasts).
-* **Database:** `PostgreSQL` (Live Mode) + `In-Memory CSV` (Simulation Mode).
-* **Tooling:** `Docker`, `Pip` / `Virtualenv`, `Ruff` (Linter).
-* **Infrastructure:** `Railway` (Deployment), `Docker Compose` (Local Dev).
+* **Frontend:** `React` / `Next.js` + `Tailwind CSS` + `Recharts`/`D3`
+* **Backend:** `Python 3.12+`, `Django 5.x`, `Django REST Framework (DRF)`
+* **Data Science:** `Scikit-learn`, `Pandas`, `NumPy`
+* **GenAI:** `Gemini API` (Personality Insights & Roasts)
+* **Database:** `PostgreSQL` (Live Mode) + `In-Memory CSV` (Simulation Mode)
+* **Tooling:** `uv`, `Ruff` (Linter), `Pytest` (Testing)
+* **Infrastructure:**  `Docker`, `Railway` (Deployment)
 
 > Done with ❤️ by [Aníbal Rojo](https://github.com/anibalrojosan).
