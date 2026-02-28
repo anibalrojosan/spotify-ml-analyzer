@@ -3,9 +3,9 @@
 | Metadata | Details |
 | :--- | :--- |
 | **Project Name** | Spotify ML Analyzer |
-| **Author** | [Your Name] |
-| **Status** | Draft v1.0 |
-| **Date** | 2026-01-06 |
+| **Author** | [Aníbal Rojo](https://github.com/anibalrojosan) |
+| **Status** | v1.0 |
+| **Date** | 2026-02-28 |
 
 ---
 
@@ -39,7 +39,48 @@ The backend serves as a REST API and handles all heavy lifting regarding data pr
 * **Pattern:** MVC (Model-View-Controller) implemented via Django MVT.
 * **Execution Flow:** Sequential and blocking. The API waits for external services (Spotify/Gemini) before responding to the client.
 
-![App Architecture](images/app_architecture.png)
+```mermaid
+graph LR
+subgraph Frontend
+    RF[React Frontend]
+end
+
+subgraph Django_Backend_Core ["Backend"]
+    DAV[Django API Views]
+    DI[Data Ingestion]
+    DB[(PostgreSQL)]
+    ML[Scikit-Learn K-means]
+end
+
+subgraph Data_Sources ["Data Sources"]
+    KD[Kaggle Dataset]
+    SA[Spotify API]
+end
+
+%% Flujos de datos
+RF -- "1. HTTP Request" --> DAV
+DAV -- "2. Trigger ETL" --> DI
+DI -- "3. Store Data" --> DB
+DAV -- "4. Read Data" --> DB
+DB -- "5. Train/Predict" --> ML
+ML -- "6. Return Clusters" --> DAV
+DAV -- "7. JSON Response" --> RF
+
+%% Fuentes de datos externas
+KD -. "Future Switch" .-> DI
+SA -. "Future Switch" .-> DI
+
+%% Estilos (opcional para mejorar la estética)
+style Django_Backend_Core fill:#222,stroke:#555,color:#fff
+style Data_Sources fill:#222,stroke:#555,color:#fff
+style RF fill:#333,stroke:#fff,color:#fff
+style DAV fill:#333,stroke:#fff,color:#fff
+style DI fill:#333,stroke:#fff,color:#fff
+style DB fill:#333,stroke:#fff,color:#fff
+style ML fill:#333,stroke:#fff,color:#fff
+style KD fill:#333,stroke:#fff,color:#fff
+style SA fill:#333,stroke:#fff,color:#fff
+```
 
 
 ### 2.1 Data Flow Strategy: "Store-First, Analyze-Later"
@@ -84,7 +125,50 @@ To mitigate latency risks associated with synchronous architectures, the applica
 
 The database schema focuses on storing user profiles and track metadata to minimize API calls to Spotify.
 
-![Entity-Relationshiop Diagram](images/er_diagram.png)
+```mermaid
+erDiagram
+    USER ||--o{ TRACK_HISTORY : "has"
+    USER ||--o{ USER_INSIGHT : "receives"
+    TRACK_HISTORY }o--|| TRACK : "references"
+    TRACK ||--|| AUDIO_FEATURES : "has"
+
+    USER {
+        string spotify_id PK
+        string display_name
+        string refresh_token
+    }
+
+    USER_INSIGHT {
+        int id PK
+        string user_id FK
+        datetime created_at
+        string personality_label "Ej: The Sad Rocker"
+        text llm_response "Texto generado por GPT"
+        json cluster_centers "Datos para el gráfico"
+    }
+
+    TRACK_HISTORY {
+        string track_id FK
+        string user_id FK
+    }
+
+    TRACK {
+        string id PK
+        string name
+        string artist
+        string album_art
+    }
+
+    AUDIO_FEATURES {
+        string track_id FK
+        float danceability
+        float energy
+        float valence
+        float tempo
+        float acousticness
+    }
+
+```
 
 ### 4.2 ETL Strategy (Extract, Transform, Load)
 1. **Extract**: Pull user's "Top Tracks" and "Saved Tracks" from Spotify API.
