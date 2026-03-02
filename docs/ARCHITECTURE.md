@@ -110,7 +110,7 @@ To mitigate latency risks associated with synchronous architectures, the applica
 
 | Layer | Technology | Justification |
 | :--- | :--- | :--- |
-| **Frontend** | **React / Next.js** | Component-based UI, efficient state management for data visualization. |
+| **Frontend** | **Next.js (App Router)** | TypeScript, Tailwind CSS, Shadcn/UI, Zustand, Recharts. |
 | **Backend** | **Python (Django REST Framework)** | Robust, batteries-included framework. Excellent ORM for complex data modeling and built-in Admin panel for dataset management. |
 | **Database** | **PostgreSQL** | Relational integrity is required for Users, Tracks, and their relationships. Native integration with Django ORM. |
 | **ML Libraries** | **Scikit-learn, Pandas, NumPy** | Standard stack for vectorization, clustering, and data manipulation. |

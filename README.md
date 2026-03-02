@@ -55,7 +55,7 @@ spotify-analyzer/
 ```
 
 ## Tech Stack
-* **Frontend:** `React` / `Next.js` + `Tailwind CSS` + `Recharts`/`D3`
+* **Frontend:** `Next.js` (App Router) + `TypeScript` + `Tailwind CSS` + `Shadcn/UI` + `Zustand` + `Recharts`
 * **Backend:** `Python 3.12+`, `Django 5.x`, `Django REST Framework (DRF)`
 * **Data Science:** `Scikit-learn`, `Pandas`, `NumPy`
 * **GenAI:** `Gemini API` (Personality Insights & Roasts)

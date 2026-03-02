@@ -7,6 +7,7 @@ The goal is to maintain transparency throughout the process and generate a clear
 
 ## Index
 
+* [**[2026-03-02]** Architecture Finalization and Frontend Pivot](#2026-03-02---architecture-finalization-and-frontend-pivot)
 * [**[2026-02-28]** Project Refactoring and Dependency Migration](#2026-02-28---project-refactoring-and-dependency-migration)
 * [**[2026-01-06]** Stopping to Check the Roadmap](#2026-01-06---stopping-to-check-the-roadmap)
 * [**[2026-01-06]** Project Requirements Document & Technical Design Document](#2026-01-06---project-requirements-document-and-technical-design-document)
@@ -20,11 +21,30 @@ The goal is to maintain transparency throughout the process and generate a clear
 * [**[2025-12-26]** Step 0](#2025-12-26---step-0)
 
 
+## [2026-03-02] - Architecture Finalization and Frontend Pivot
+
+**Status:** Planning & Documentation Completed
+
+Today I finalized the technical planning for the next development phases, focusing on creating a robust and professional architecture. I focused mainly on drafting the ADRs and enhance the Roadmap. I had to take some decisions on how to how and when implmentedn the database schema and the frontend. and waht tools to use. This planning aims to make easier to continue with the development and avoid future refactoring (as it seems it was needed as the previous plan).
+
+**What I did today:**
+*   **Created ADRs 001-009:** Documented all major architectural decisions, including backend (Django), persistence (PostgreSQL), deployment (Railway), and intelligence (Gemini).
+*   **Frontend Pivot (Next.js vs Streamlit):** Decided to use **Next.js + Shadcn/UI + Tailwind CSS** instead of Streamlit to avoid "throwaway code" and ensure a professional aesthetic from the start (ADR 009).
+*   **State & Visualization:** Chose **Zustand** for lightweight state management and **Recharts** for interactive data visualizations (ADR 008).
+*   **Unified Ingestion Strategy:** Defined a "Unified Ingestor" pattern (ADR 006) to handle both CSV (Simulation) and Spotify API (Live) data seamlessly.
+*   **Roadmap Update:** Reorganized the `ROADMAP.md` into an agile, DB-first approach to minimize future refactoring.
+
+**Why this matters:**
+*   **Professionalism:** Moving away from Streamlit ensures the app looks like a real product, not a data science script.
+*   **Maintainability:** The ADRs provide a clear "why" for every tool choice, making it easier to scale or pivot in the future.
+*   **Efficiency:** The DB-first strategy ensures that the work done in Phase 2 (Simulation) is directly reusable in Phase 5 (Live).
+
+
 ## [2026-02-28] - Project Refactoring and Dependency Migration
 
 **Status:** Infrastructure Optimization
 
-Today I performed a significant cleanup of the project's infrastructure to improve development speed and maintainability. The focus was on migrating to more modern tooling and removing unused boilerplate code.
+Today I performed a significant cleanup of the project's infrastructure to improve development speed and maintainability. The focus was on migrating to more modern tooling and removing unused boilerplate code. As I reached the last steps of phase 2, I realized I needed to take a step back to align my thinking and the project's direction.
 
 **What I did today:**
 *   **Migrated from `pip` to `uv`:** Replaced `requirements.txt` with `pyproject.toml` and `uv.lock`. This transition significantly speeds up dependency resolution and provides a more robust environment management.

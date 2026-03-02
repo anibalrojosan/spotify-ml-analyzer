@@ -1,47 +1,43 @@
 # Product Roadmap: Spotify ML Analyzer
 
-> **Current Status:** Phase 2: Simulation Core & Backend Logic
+> **Current Status:** Phase 2: The Simulation Engine (Data Layer)
 >
-> **Last Updated:** 2026-02-28
+> **Last Updated:** 2026-03-02
 >
-> **Strategic Pivot:** Due to Spotify API verification blocks, the project is operating in **"Simulation Mode"** using static datasets until "Live Mode" (Phase 4) can be activated.
+> **Strategic Pivot:** Operating in **"Simulation Mode"** using static datasets and a PostgreSQL-first approach to ensure a seamless transition to "Live Mode" (Phase 5).
 
 ## Goal:
 To build a resilient "Full Stack Data Science" application that delivers psychological insights from music data, regardless of live API availability.
 
 ## Execution Timeline
 
-### Phase 1: Foundations (Done) 
-- [x] **Project Scaffolding:** Initialized Django (Backend) and React (Frontend) monorepo structure.
+### Phase 1: Foundations & Research (Done)
+- [x] **Project Scaffolding:** Initialized Django (Backend) and Next.js (Frontend) structure.
+- [x] **Data Science Layer:** Sourced Kaggle dataset, performed EDA, and defined 5 User Archetypes using K-Means.
 - [x] **Environment:** Configured Docker, Git, and Virtual Environments.
 
-### Phase 2: Simulation Core & Backend Logic (CURRENT)
+### Phase 2: Simulation Engine (CURRENT)
+- [ ] **Database Schema:** Define Django Models for `Track`, `AudioFeatures`, and `UserArchetype`.
+- [ ] **Unified Ingestor:** Implement `CSVIngestor` as a Django Management Command to populate PostgreSQL from CSV.
+- [ ] **Mock Auth System:** Implement `MockAuthView` to assign a fake "User Archetype" session.
+- [ ] **Profile API:** Endpoints to retrieve tracks and features consistent with the assigned Archetype.
 
-#### 2.1 Data Science Layer (Done)
-- [x] **Data Acquisition:** Sourced and cleaned Kaggle dataset (`cleaned_dataset.csv`).
-- [x] **EDA:** Validated data quality and feature distributions.
-- [x] **Archetype Definition:** Defined 5 User Personas (e.g., "The High Intensity", "The Organic") using K-Means Clustering.
+### Phase 3: Visual Prototype & UX Validation
+- [ ] **Next.js Dashboard:** Build the core layout and navigation.
+- [ ] **Data Visualization:** Implement **Radar Charts** (audio features) and **Scatter Plots** using Recharts.
+- [ ] **State Management:** Implement `UserStore` with Zustand to handle simulation sessions.
 
-#### 2.2 Backend Simulation Service (In Progress)
-- [ ] **CSV Data Loader:** Implement `utils/data_loader.py` to ingest the dataset into Pandas/Memory (Singleton Pattern).
-- [ ] **Mock Auth System:** Implement `MockAuthView` to bypass OAuth and assign a fake "User Archetype" session.
-- [ ] **Profile Simulation:** Logic to generate a fake "Recently Played" history consistent with the assigned Archetype.
+### Phase 4: Intelligence & Insights
+- [ ] **Recommendation Engine:** Implement `/api/recommend` using pre-trained KNN models (Scikit-learn).
+- [ ] **AI Psychologist:** Integrate **Google Gemini API** to generate personality insights based on dashboard data.
+- [ ] **Insight UI:** Build the "Psychological Profile" view with AI-generated text.
 
-#### 2.3 Intelligence Services (Next Up)
-- [ ] **Recommendation Engine:** Implement KNN endpoint (`/api/recommend`) to find nearest neighbors in the n-dimensional audio space.
-- [ ] **AI "Psychologist":** Integrate Gemini/LLM API to interpret user stats and generate text-based personality insights.
-
-### Phase 3: Frontend Visualization
-- [ ] **Mock Connection:** Wire up the React Login button to the `MockAuthView` (Task: `Phase 2-05`).
-- [ ] **Dashboard Implementation:** Build Radar Charts and Scatter Plots using Recharts/D3.
-- [ ] **State Management:** Implement UserContext to hold the "Mock User" profile.
-
-### Phase 4: The "Live" Switch (BLOCKED)
-- [ ] **Spotify App Registration:** Verify Client ID/Secret.
-- [ ] **Live OAuth 2.0:** Replace Mock Auth with real Spotify Handshake.
-- [ ] **PostgreSQL Sync:** Replace CSV Loader with live ETL pipelines to DB.
-
+### Phase 5: Creating the Live Switch (Blocked)
+- [ ] **Spotify OAuth 2.0:** Replace Mock Auth with real Spotify Handshake.
+- [ ] **Live ETL Pipeline:** Implement `SpotifyAPIIngestor` to sync live user data into the existing DB schema.
+- [ ] **Production Deployment:** Finalize Railway configuration for live traffic.
 
 ## Strategic Notes
-* **Architecture Mismatch:** The current `ARCHITECTURE.md` describes the *Phase 4 (Live)* system. I'm currently building a transient *Simulation Architecture* (In-Memory CSV) to maintain momentum.
-* **Testing Strategy:** All backend logic is tested against the `cleaned_dataset.csv`, ensuring 100% reproducibility.
+*   **DB-First Approach:** We use PostgreSQL from Phase 2 to avoid refactoring when switching from CSV to API.
+*   **Decoupled Intelligence:** The AI and Recommendation logic are built on top of the DB schema, making them source-agnostic.
+*   **Early Visualization:** Phase 3 ensures we validate the UX and data story before adding expensive AI calls.

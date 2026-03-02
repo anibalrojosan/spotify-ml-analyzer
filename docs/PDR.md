@@ -56,6 +56,7 @@ These profiles act as the "selectable characters" during the Mock Login phase:
 * **Goal:** Enable Frontend and Session development without depending on valid Spotify Client IDs.
 
 ### 5.2 Analytics Dashboard (Visualization Core)
+* **UI/UX Strategy:** The interface will be built using **Shadcn/UI** and **Tailwind CSS** to ensure a clean, modern, and accessible design consistent with professional music applications.
 * **Psychological Map (Scatter Plot):**
     * *X-Axis:* Valence (Positivity).
     * *Y-Axis:* Energy (Intensity).
