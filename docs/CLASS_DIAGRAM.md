@@ -2,6 +2,8 @@
 
 This document describes the backend class structure (Django Models) and their relationships, aligned with **Phase 2: Simulation Engine**.
 
+> **Note:** All models implement standard Django __str__ methods for administrative readability, even if not explicitly shown in the diagram.
+
 ## Class Diagram (Mermaid)
 
 ```mermaid
