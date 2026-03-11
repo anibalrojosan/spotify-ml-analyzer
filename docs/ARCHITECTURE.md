@@ -123,52 +123,7 @@ To mitigate latency risks associated with synchronous architectures, the applica
 
 ### 4.1 Entity-Relationship Diagram
 
-The database schema focuses on storing user profiles and track metadata to minimize API calls to Spotify.
-
-```mermaid
-erDiagram
-    USER ||--o{ TRACK_HISTORY : "has"
-    USER ||--o{ USER_INSIGHT : "receives"
-    TRACK_HISTORY }o--|| TRACK : "references"
-    TRACK ||--|| AUDIO_FEATURES : "has"
-
-    USER {
-        string spotify_id PK
-        string display_name
-        string refresh_token
-    }
-
-    USER_INSIGHT {
-        int id PK
-        string user_id FK
-        datetime created_at
-        string personality_label "Ej: The Sad Rocker"
-        text llm_response "Texto generado por GPT"
-        json cluster_centers "Datos para el gráfico"
-    }
-
-    TRACK_HISTORY {
-        string track_id FK
-        string user_id FK
-    }
-
-    TRACK {
-        string id PK
-        string name
-        string artist
-        string album_art
-    }
-
-    AUDIO_FEATURES {
-        string track_id FK
-        float danceability
-        float energy
-        float valence
-        float tempo
-        float acousticness
-    }
-
-```
+To see the entity-relationship diagram, please refer to the [DATABASE.md](./DATABASE.md) file.
 
 ### 4.2 ETL Strategy (Extract, Transform, Load)
 1. **Extract**: Pull user's "Top Tracks" and "Saved Tracks" from Spotify API.

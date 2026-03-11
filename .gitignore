@@ -9,7 +9,7 @@ Thumbs.db
 *.swo
 
 # ========================
-# SEGURIDAD Y VARIABLES DE ENTORNO
+# DEVELOPMENT ENVIRONMENT
 # ========================
 .env
 .env.local
@@ -42,8 +42,29 @@ media_root/
 # Django logs
 *.log
 
+# ========================
+# DATA SCIENCE (JUPYTER)
+# ========================
+
 # Jupyter Notebooks
 .ipynb_checkpoints
+
+# ========================
+# PROJECT PLANNING
+# ========================
+
+SPRINTS.md
+
+# ========================
+# IDES AND TOOLS
+# ========================
+.cursor/
+.vscode/
+.idea/
+.DS_Store
+.env
+.env.local
+.env.*.local
 
 # ========================
 # FRONTEND (NODE / REACT)

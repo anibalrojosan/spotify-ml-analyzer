@@ -7,6 +7,7 @@ The goal is to maintain transparency throughout the process and generate a clear
 
 ## Index
 
+* [**[2026-03-10]** Sprint Phase 2-01: Relational Schema & Infrastructure Setup](#2026-03-10---sprint-phase-2-01-relational-schema--infrastructure-setup)
 * [**[2026-03-02]** Architecture Finalization and Frontend Pivot](#2026-03-02---architecture-finalization-and-frontend-pivot)
 * [**[2026-02-28]** Project Refactoring and Dependency Migration](#2026-02-28---project-refactoring-and-dependency-migration)
 * [**[2026-01-06]** Stopping to Check the Roadmap](#2026-01-06---stopping-to-check-the-roadmap)
@@ -20,6 +21,40 @@ The goal is to maintain transparency throughout the process and generate a clear
 * [**[2025-12-26]** Day 1: Walking Skeleton](#2025-12-26---day-1-walking-skeleton)
 * [**[2025-12-26]** Step 0](#2025-12-26---step-0)
 
+---
+
+## [2026-03-10] - Sprint Phase 2-01: Relational Schema & Infrastructure Setup
+
+After finishing the enhancements of the documentation, I continued with Phase 2. Today's sprint was focused on setting up the database schema and the infrastructure.
+
+### Context & Goals
+The primary goal of this sprint was to transition from a conceptual architecture to a functional data persistence layer. I needed to establish a robust PostgreSQL foundation capable of handling both the current **Simulation Mode** (Kaggle dataset) and the future **Live Mode** (Spotify API), ensuring data integrity and scalability from the start.
+
+### Technical Implementation
+- **Infrastructure:** Configured `docker-compose.yml` with **PostgreSQL 18-alpine** on a custom port (`5435`) to avoid local conflicts.
+- **Environment Management:** Implemented `.env` and `.env.example` pattern using `python-dotenv` for secure credential handling.
+- **Database Schema:** Defined core models in `backend/api/models.py`:
+    - `Track`: Central entity with indexed `spotify_id` for fast lookups.
+    - `AudioFeatures`: 1:1 relationship with `Track` to isolate numerical ML data.
+    - `UserArchetype`: Template for simulated user profiles using `JSONField`.
+    - `UserProfile` & `UserInsight`: Entities for session persistence and AI-generated report storage.
+- **Documentation:** Created `docs/DATABASE.md` (ERD) and `docs/CLASS_DIAGRAM.md` using Mermaid.js to ensure architectural alignment.
+- **Admin Interface:** Registered all models in `api/admin.py` with custom `list_display`, `search_fields`, and `list_filter` for efficient data inspection.
+- **Migrations:** Successfully executed `makemigrations` and `migrate` to materialize the schema in PostgreSQL.
+
+### 💡 Deep Dive: Advanced Django Model Fields
+To ensure the system is both flexible and performant, we utilized several specialized Django ORM features:
+- **`UUIDField`**: Used for primary keys to provide non-sequential, globally unique identifiers, enhancing API security and data portability.
+- **`JSONField`**: Implemented in `UserArchetype` and `UserInsight`. This allows storing unstructured data (like ML centroids or dynamic filtering ranges) directly in PostgreSQL as `jsonb`, providing NoSQL-like flexibility within a relational database.
+- **`OneToOneField` vs `ForeignKey`**: Used `OneToOneField` for `AudioFeatures` to enforce strict data integrity (one track = one set of features), while `ForeignKey` was used for `UserArchetype` to allow multiple users to share the same musical profile.
+- **`db_index=True`**: Applied to `spotify_id` to create a B-Tree index in PostgreSQL, which is critical for the upcoming `CSVIngestor` performance.
+
+### Next Steps
+- Implement the `CSVIngestor` management command (Sprint `phase2-02`) to populate the database with the Kaggle dataset.
+- Develop the Mock Authentication provider to simulate user sessions based on Archetypes.
+- Create the first set of REST API endpoints to expose track data to the Frontend.
+
+---
 
 ## [2026-03-02] - Architecture Finalization and Frontend Pivot
 
