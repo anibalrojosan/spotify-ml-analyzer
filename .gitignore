@@ -91,3 +91,6 @@ coverage/
 *.csv
 *.xlsx
 reports/
+
+# Ingestion logs
+ingestion_log.txt
