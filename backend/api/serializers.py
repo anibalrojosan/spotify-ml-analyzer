@@ -13,6 +13,8 @@ class UserSerializer(serializers.ModelSerializer):
     """
     Serializer for UserProfile model with a mock avatar and nested archetype.
     """
+    # .SerializerMethodField() tells DRF to use the get_avatar_url method
+    # to generate the avatar_url field.
     avatar_url = serializers.SerializerMethodField()
     archetype = ArchetypeSerializer(read_only=True)
 

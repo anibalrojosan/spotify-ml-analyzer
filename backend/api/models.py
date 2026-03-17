@@ -94,6 +94,14 @@ class UserProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    @property
+    def is_authenticated(self):
+        """
+        Always return True for UserProfile instances to satisfy DRF's IsAuthenticated permission.
+        Needed since UserProfile is a custom authentication class (does not inherit from User model).
+        """
+        return True
+
     class Meta:
         verbose_name = "User Profile"
         verbose_name_plural = "User Profiles"

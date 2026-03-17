@@ -7,23 +7,102 @@ The goal is to maintain transparency throughout the process and generate a clear
 
 ## Index
 
-* [**[2026-03-10]** Sprint Phase 2-01: Relational Schema & Infrastructure Setup](#2026-03-10---sprint-phase-2-01-relational-schema--infrastructure-setup)
-* [**[2026-03-02]** Architecture Finalization and Frontend Pivot](#2026-03-02---architecture-finalization-and-frontend-pivot)
-* [**[2026-02-28]** Project Refactoring and Dependency Migration](#2026-02-28---project-refactoring-and-dependency-migration)
-* [**[2026-01-06]** Stopping to Check the Roadmap](#2026-01-06---stopping-to-check-the-roadmap)
-* [**[2026-01-06]** Project Requirements Document & Technical Design Document](#2026-01-06---project-requirements-document-and-technical-design-document)
-* [**[2026-01-05]** Project Planning & Requirements Definition](#2026-01-05---project-planning-and-requirements-definition)
-* [**[2026-01-03]** Clustering Model Finalization & Archetype definition](#2026-01-03---clustering-model-finalization-and-archetype-definition)
-* [**[2026-01-02]** Unsupervised Learning setup & Architecture research](#2026-01-02---unsupervised-learning-setup-and-architecture-research)
-* [**[2026-01-01]** Variance analysis & Backend rule definition](#2026-01-01---variance-analysis-and-backend-rule-definition)
-* [**[2025-12-30]** Psychometric validation & Dimensional reduction](#2025-12-30---psychometric-validation-and-dimensional-reduction)
-* [**[2025-12-29]** Data Acquisition Strategy & Initial EDA Pipeline](#2025-12-29---data-acquisition-strategy-and-initial-eda-pipeline)
-* [**[2025-12-26]** Day 1: Walking Skeleton](#2025-12-26---day-1-walking-skeleton)
-* [**[2025-12-26]** Step 0](#2025-12-26---step-0)
+* [**[2026-03-17]** - Review: Django Rest Framework (DRF)](#2026-03-17---review-django-rest-framework-drf)
+* [**[2026-03-17]** - Phase 2-03: Mock Authentication & Archetype Provider](#2026-03-17---phase-2-03-mock-authentication--archetype-provider)
+* [**[2026-03-16]** - Phase 2-02: CSV Data Ingestion & Archetype Seeding](#2026-03-16---phase-2-02-csv-data-ingestion--archetype-seeding)
+* [**[2026-03-10]** - Phase 2-01: Relational Schema & Infrastructure Setup](#2026-03-10---phase-2-01-relational-schema--infrastructure-setup)
+* [**[2026-03-02]** - Architecture Finalization and Frontend Pivot](#2026-03-02---architecture-finalization-and-frontend-pivot)
+* [**[2026-02-28]** - Project Refactoring and Dependency Migration](#2026-02-28---project-refactoring-and-dependency-migration)
+* [**[2026-01-06]** - Stopping to Check the Roadmap](#2026-01-06---stopping-to-check-the-roadmap)
+* [**[2026-01-06]** - Project Requirements Document & Technical Design Document](#2026-01-06---project-requirements-document-and-technical-design-document)
+* [**[2026-01-05]** - Project Planning & Requirements Definition](#2026-01-05---project-planning-and-requirements-definition)
+* [**[2026-01-03]** - Clustering Model Finalization & Archetype definition](#2026-01-03---clustering-model-finalization-and-archetype-definition)
+* [**[2026-01-02]** - Unsupervised Learning setup & Architecture research](#2026-01-02---unsupervised-learning-setup-and-architecture-research)
+* [**[2026-01-01]** - Variance analysis & Backend rule definition](#2026-01-01---variance-analysis-and-backend-rule-definition)
+* [**[2025-12-30]** - Psychometric validation & Dimensional reduction](#2025-12-30---psychometric-validation-and-dimensional-reduction)
+* [**[2025-12-29]** - Data Acquisition Strategy & Initial EDA Pipeline](#2025-12-29---data-acquisition-strategy-and-initial-eda-pipeline)
+* [**[2025-12-26]** - Day 1: Walking Skeleton](#2025-12-26---day-1-walking-skeleton)
+* [**[2025-12-26]** - Step 0](#2025-12-26---step-0)
 
 ---
 
-## [2026-03-10] - Sprint Phase 2-01: Relational Schema & Infrastructure Setup
+## [2026-03-17] - Review: Django Rest Framework (DRF)
+
+To implement **Phase2-03** I reviewed the Django Rest Framework (DRF) documentation and implemented the mock authentication system and the archetype provider to unblock frontend development and simulate user sessions.
+
+DRF it's a library on top of Django that helps to build RESTful APIs quickly and easily. The main idea it's to create a RESTful API layer that communicates the Django's Backend (models and views) with a independent frontend that can be used by any client, using JSON as a communication protocol.
+
+Fundamental concepts learned that I had to review were:
+
+1. **Serializers (The Translation Layer):**
+   - **Concept:** Act as a bridge between complex Django Model instances and flat JSON data. They are used to convert the Django models (Python code) into JSON data that can be used by the frontend.
+   - **Implementation:** Used `ModelSerializer` for `UserArchetype` and `UserProfile` to automatically map database fields.
+   - **Advanced usage:** Implemented `SerializerMethodField` to create `avatar_url`. This is a "read-only" field that doesn't exist in the DB but is calculated on-the-fly via a `get_avatar_url` method, allowing us to integrate external services like DiceBear API seamlessly.
+
+2. **Authentication Classes (The Identity Layer):**
+   - **Concept:** Determine *who* is making the request. DRF allows multiple strategies (Session, Token, JWT).
+   - **Implementation:** Created a custom `MockSessionAuthentication`. This was necessary because our `UserProfile` is a custom model that doesn't inherit from Django's built-in `User`. The class reads the `user_id` from the Django session and "injects" the corresponding profile into `request.user`.
+
+3. **Permission Classes (The Security Layer):**
+   - **Concept:** Determine *if* the identified user has the right to perform an action.
+   - **Implementation:** Used `IsAuthenticated` in the `MeView`. This class checks if `request.user` exists and if its `is_authenticated` property is `True`. To make this work with our custom model, I had to add a `@property is_authenticated` to the `UserProfile` model.
+
+**Key Takeaway:** DRF's power lies in its modularity. By separating *how we translate data* (Serializers) from *how we identify users* (Authentication) and *what they can do* (Permissions), an API can be created that is easy to test and ready to be swapped for "Real Spotify Auth" in the future without changing the business logic.
+
+---
+
+## [2026-03-17] - Phase 2-03: Mock Authentication & Archetype Provider
+
+Today I implemented the mock authentication system and the archetype provider to unblock frontend development and simulate user sessions.
+
+### Context & Goals
+The goal was to create a "Simulation Mode" authentication that mimics the future Spotify OAuth flow. This allows the frontend to have a `request.user` object and a persistent session without needing real API credentials yet.
+
+### Technical Implementation
+- **Serializers:** Created `ArchetypeSerializer` and `UserSerializer` in `backend/api/serializers.py` to define the data contract for the frontend. A mock avatar URL using DiceBear API was created using a `SerializerMethodField`.
+- **Mock Login Endpoint:** Implemented `MockLoginView` in `backend/api/views.py` which allows selecting an archetype and establishes a Django session.
+- **Custom Authentication:** Created `MockSessionAuthentication` in `backend/api/authentication.py`. This class "injects" the `UserProfile` into `request.user` if a valid session exists.
+- **User Verification:** Added a `MeView` (`/api/auth/me/`) to allow the frontend to verify the current session state.
+- **Model Enhancement:** Added `is_authenticated` property to `UserProfile` to satisfy Django Rest Framework's permission system.
+
+### 💡 Deep Dive: Django Rest Framework (DRF)
+DRF was used to build the API layer. Key concepts applied:
+- **Serializers:** Act as a translation layer between complex Django models and JSON. We used `SerializerMethodField` for dynamic data like avatars.
+- **Authentication Classes:** We bypassed the default `SessionAuthentication` with a custom one to map our `UserProfile` (which doesn't inherit from Django's `User`) to `request.user`.
+- **Permission Classes:** Used `IsAuthenticated` to protect the `/me/` endpoint, ensuring only users with an active mock session can access it.
+
+### Next Steps
+- Implement track filtering logic based on the assigned `UserArchetype` (Phase 2-04).
+- Create the simulation dashboard in the frontend to visualize the assigned profile.
+
+---
+
+## [2026-03-16] - Phase 2-02: CSV Data Ingestion & Archetype Seeding
+
+Focused on populating the database with the Kaggle dataset and the predefined psychological archetypes.
+
+### Context & Goals
+To run the simulation, I needed a local database filled with tracks and their audio features. Additionally, I needed to materialize the 5 archetypes identified in the clustering phase into the database.
+
+### Technical Implementation
+- **CSV Ingestor:** Developed `ingest_tracks` management command. It processes the Kaggle CSV in chunks (1000 rows) to maintain a low memory footprint.
+- **Data Integrity:** Implemented `update_or_create` logic to ensure idempotency and avoid duplicate tracks or features.
+- **Archetype Seeding:** Created `seed_archetypes` command to populate the `UserArchetype` model with the 5 clusters (Organic, Euphoric, High Intensity, Rhythmic, Mainstream) and their defining feature ranges.
+- **Logging:** Added a local `ingestion_log.txt` to track progress and errors during long-running imports.
+
+### 💡 Deep Dive: Management Commands vs. Django Admin
+While the Django Admin is great for manual edits, I chose to use **Management Commands** for data population for several reasons:
+- **Automation:** Scripts can be version-controlled and executed as part of a CI/CD pipeline or environment setup.
+- **Performance:** Using `bulk_create` or chunked processing is significantly faster than manual entry.
+- **Repeatability:** Ensures that every developer involved in a project has the exact same set of data (tracks and archetypes) in the database.
+
+### Next Steps
+- Implement the Mock Authentication system to link users with these archetypes.
+- Setup DRF serializers to expose this data via API.
+
+---
+
+## [2026-03-10] - Phase 2-01: Relational Schema & Infrastructure Setup
 
 After finishing the enhancements of the documentation, I continued with Phase 2. Today's sprint was focused on setting up the database schema and the infrastructure.
 

@@ -94,3 +94,6 @@ reports/
 
 # Ingestion logs
 ingestion_log.txt
+
+# Cookies
+cookies.txt
