@@ -18,6 +18,10 @@ class Track(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        verbose_name = "Track"
+        verbose_name_plural = "Tracks"
+
     def __str__(self):
         return f"{self.title} - {self.artist_name}"
 
@@ -43,6 +47,10 @@ class AudioFeatures(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        verbose_name = "Audio Feature"
+        verbose_name_plural = "Audio Features"
+
     def __str__(self):
         return f"Features for {self.track.title}"
 
@@ -60,6 +68,10 @@ class UserArchetype(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "User Archetype"
+        verbose_name_plural = "User Archetypes"
 
     def __str__(self):
         return self.display_name
@@ -82,6 +94,10 @@ class UserProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        verbose_name = "User Profile"
+        verbose_name_plural = "User Profiles"
+
     def __str__(self):
         return self.display_name
 
@@ -97,6 +113,10 @@ class UserInsight(models.Model):
     cluster_centers = models.JSONField(help_text="Centroid data for charts")
     
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "User Insight"
+        verbose_name_plural = "User Insights"
 
     def __str__(self):
         return f"Insight for {self.user.display_name} ({self.created_at.date()})"
