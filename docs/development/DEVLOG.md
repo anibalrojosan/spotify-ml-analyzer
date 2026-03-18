@@ -7,6 +7,7 @@ The goal is to maintain transparency throughout the process and generate a clear
 
 ## Index
 
+* [**[2026-03-18]** - Refactor: Massive Performance Optimization for CSV Ingestion](#2026-03-18---refactor-massive-performance-optimization-for-csv-ingestion)
 * [**[2026-03-17]** - Review: Django Rest Framework (DRF)](#2026-03-17---review-django-rest-framework-drf)
 * [**[2026-03-17]** - Phase 2-03: Mock Authentication & Archetype Provider](#2026-03-17---phase-2-03-mock-authentication--archetype-provider)
 * [**[2026-03-16]** - Phase 2-02: CSV Data Ingestion & Archetype Seeding](#2026-03-16---phase-2-02-csv-data-ingestion--archetype-seeding)
@@ -23,6 +24,34 @@ The goal is to maintain transparency throughout the process and generate a clear
 * [**[2025-12-29]** - Data Acquisition Strategy & Initial EDA Pipeline](#2025-12-29---data-acquisition-strategy-and-initial-eda-pipeline)
 * [**[2025-12-26]** - Day 1: Walking Skeleton](#2025-12-26---day-1-walking-skeleton)
 * [**[2025-12-26]** - Step 0](#2025-12-26---step-0)
+
+---
+
+## [2026-03-18] - Refactor: Massive Performance Optimization for CSV Ingestion
+
+### Context & Goals
+The initial implementation of the `ingest_tracks` management command was functional but highly inefficient. It processed the Kaggle CSV dataset by iterating through rows sequentially and hitting the database multiple times per row using `update_or_create`. While the dataset 'only' has ~30.000 rows, this caused severe performance bottlenecks, taking approximately 17 seconds per 1000 records. Extrapolated to a million row dataset, the job would take over 4 hours and likely crash due to memory exhaustion or database connection timeouts. The goal was to refactor the ingestion logic to process data in true batches, minimizing database queries and execution time.
+
+### Technical Implementation
+- **Removed Sequential DB Calls:** Eliminated the use of `update_or_create` inside the `for` loop in `backend/api/management/commands/ingest_tracks.py`.
+- **In-Memory Preparation:** Refactored the loop to only instantiate `Track` and `AudioFeatures` objects in Python's RAM, storing them in lists and dictionaries without touching the database.
+- **In-Chunk Deduplication:** Added a `Set` to track `spotify_id`s within the same chunk to prevent `IntegrityError` during bulk inserts if the CSV contained duplicate rows close to each other.
+- **Bulk Operations:** Implemented Django's `bulk_create` with `update_conflicts=True` to perform true UPSERT operations at the database level.
+- **Empirical Results:** The refactor reduced the processing time from ~17.0s per chunk to ~0.6s per chunk, making the script approximately **28 times faster**.
+
+### 💡 Deep Dive: The N x 4 Problem vs. Bulk Upserts
+The original implementation suffered from a severe anti-pattern similar to the N+1 query problem, but for writes. For every single row in the CSV, Django's `update_or_create` executed two queries (a `SELECT` to check existence, then an `INSERT`/`UPDATE`). Since there are two models (`Track` and `AudioFeatures`), processing a chunk of 1000 rows resulted in **4000 sequential SQL queries**. The latency of waiting for the database to respond 4000 times per chunk is what killed the performance.
+
+The refactored approach uses a **3-query pattern per chunk**, regardless of the chunk size:
+1. **`Track.objects.bulk_create(..., update_conflicts=True)`**: Sends all 1000 tracks in a single `INSERT INTO ... ON CONFLICT DO UPDATE` statement.
+2. **`Track.objects.filter(spotify_id__in=...)`**: A single `SELECT` to retrieve the actual database `id`s (UUIDs) assigned to those tracks, which are needed for the foreign key relationship.
+3. **`AudioFeatures.objects.bulk_create(...)`**: A final massive `INSERT` statement for all the related features.
+
+By shifting the workload from Python's sequential loops to PostgreSQL's optimized bulk processing capabilities, this refactor drastically reduced network I/O and transaction overhead.
+
+### Next Steps
+- Continue with Phase 3 development (Frontend integration).
+- Ensure future background jobs follow this bulk-processing pattern to prevent OOM (Out of Memory) errors in production.
 
 ---
 

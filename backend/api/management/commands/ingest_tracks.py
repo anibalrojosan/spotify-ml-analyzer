@@ -88,40 +88,77 @@ class Command(BaseCommand):
             f.write(f"[{now.strftime('%Y-%m-%d %H:%M:%S')}] {message}\n")
 
     def process_chunk(self, chunk, stats):
-        """Processes a single chunk of the CSV data."""
+        """Processes a single chunk of the CSV data using bulk operations."""
+        # Initialize data in memory
+        tracks_to_create = []
+        features_data_map = {} # spotify_id -> features_data
+        seen_spotify_ids = set()
+
+        # Prepare data in memory
         for _, row in chunk.iterrows():
             try:
-                with transaction.atomic():
-                    # Prepare Track data
-                    track_data = {model_field: row[csv_col] for csv_col, model_field in self.TRACK_MAP.items()}
-                    spotify_id = track_data.pop('spotify_id')
+                # Prepare Track data
+                track_data = {model_field: row[csv_col] for csv_col, model_field in self.TRACK_MAP.items()}
+                spotify_id = track_data.pop('spotify_id')
 
-                    # Upsert 'Track' using Django ORM
-                    track, created = Track.objects.update_or_create(
-                        spotify_id=spotify_id,
-                        defaults=track_data
-                    )
+                # Deduplicate within the same chunk
+                if spotify_id in seen_spotify_ids:
+                    continue
+                seen_spotify_ids.add(spotify_id)
 
-                    if created:
-                        stats['created'] += 1
-                    else:
-                        stats['updated'] += 1
+                track = Track(spotify_id=spotify_id, **track_data)
+                tracks_to_create.append(track)
 
-                    # Prepare & Validate AudioFeatures data
-                    features_data = {}
-                    for csv_col, model_field in self.FEATURES_MAP.items():
-                        val = row[csv_col]
-                        # Clamp values between 0.0 and 1.0 for specific features
-                        if model_field in ['danceability', 'energy', 'valence', 'acousticness', 'instrumentalness', 'speechiness']:
-                            val = max(0.0, min(1.0, float(val)))
-                        features_data[model_field] = val
-
-                    # Upsert 'AudioFeatures' using Django ORM (1:1 relationship)
-                    AudioFeatures.objects.update_or_create(
-                        track=track,
-                        defaults=features_data
-                    )
+                # Prepare & Validate AudioFeatures data
+                features_data = {}
+                for csv_col, model_field in self.FEATURES_MAP.items():
+                    val = row[csv_col]
+                    # Clamp values between 0.0 and 1.0 for specific features
+                    if model_field in ['danceability', 'energy', 'valence', 'acousticness', 'instrumentalness', 'speechiness']:
+                        val = max(0.0, min(1.0, float(val)))
+                    features_data[model_field] = val
+                
+                features_data_map[spotify_id] = features_data
 
             except Exception as e:
                 stats['errors'] += 1
-                self.stdout.write(self.style.WARNING(f"Error processing track {row.get('track_id', 'unknown')}: {str(e)}"))
+                self.stdout.write(self.style.WARNING(f"Error preparing track {row.get('track_id', 'unknown')}: {str(e)}"))
+
+        if not tracks_to_create:
+            return
+
+        # Massive insertions (bulk upsert) are performed in a single transaction
+        try:
+            with transaction.atomic():
+                # Bulk Upsert Tracks
+                Track.objects.bulk_create(
+                    tracks_to_create,
+                    update_conflicts=True, # If a conflict is found, update the existing record
+                    unique_fields=['spotify_id'],
+                    update_fields=['title', 'artist_name', 'album_name']
+                )
+                
+                # Update stats (We can't easily differentiate created vs updated with bulk_create)
+                stats['created'] += len(tracks_to_create)
+
+                # Retrieve Track IDs to be used for AudioFeatures bulk upsert
+                spotify_ids = list(features_data_map.keys())
+                tracks_db = Track.objects.filter(spotify_id__in=spotify_ids)
+                
+                # Bulk Upsert AudioFeatures
+                features_to_create = []
+                for track_db in tracks_db:
+                    f_data = features_data_map[track_db.spotify_id]
+                    features_to_create.append(AudioFeatures(track=track_db, **f_data))
+                
+                if features_to_create:
+                    AudioFeatures.objects.bulk_create(
+                        features_to_create,
+                        update_conflicts=True,
+                        unique_fields=['track'],
+                        update_fields=list(self.FEATURES_MAP.values())
+                    )
+                    
+        except Exception as e:
+            stats['errors'] += len(tracks_to_create)
+            self.stdout.write(self.style.ERROR(f"Error during bulk save: {str(e)}"))
