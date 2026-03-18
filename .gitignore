@@ -97,3 +97,6 @@ ingestion_log.txt
 
 # Cookies
 cookies.txt
+
+# Old Django commands
+backend/api/management/commands/ingest_tracks_old.py
