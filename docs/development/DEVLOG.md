@@ -7,8 +7,9 @@ The goal is to maintain transparency throughout the process and generate a clear
 
 ## Index
 
+* [**[2026-03-20]** - REVIEW: N+1 Query Problem & Bulk Operations](#2026-03-20---review-n1-query-problem--bulk-operations)
 * [**[2026-03-18]** - Refactor: Massive Performance Optimization for CSV Ingestion](#2026-03-18---refactor-massive-performance-optimization-for-csv-ingestion)
-* [**[2026-03-17]** - Review: Django Rest Framework (DRF)](#2026-03-17---review-django-rest-framework-drf)
+* [**[2026-03-17]** - REVIEW: Django Rest Framework (DRF)](#2026-03-17---review-django-rest-framework-drf)
 * [**[2026-03-17]** - Phase 2-03: Mock Authentication & Archetype Provider](#2026-03-17---phase-2-03-mock-authentication--archetype-provider)
 * [**[2026-03-16]** - Phase 2-02: CSV Data Ingestion & Archetype Seeding](#2026-03-16---phase-2-02-csv-data-ingestion--archetype-seeding)
 * [**[2026-03-10]** - Phase 2-01: Relational Schema & Infrastructure Setup](#2026-03-10---phase-2-01-relational-schema--infrastructure-setup)
@@ -24,6 +25,132 @@ The goal is to maintain transparency throughout the process and generate a clear
 * [**[2025-12-29]** - Data Acquisition Strategy & Initial EDA Pipeline](#2025-12-29---data-acquisition-strategy-and-initial-eda-pipeline)
 * [**[2025-12-26]** - Day 1: Walking Skeleton](#2025-12-26---day-1-walking-skeleton)
 * [**[2025-12-26]** - Step 0](#2025-12-26---step-0)
+
+---
+
+## [2026-03-20] - Review: N+1 Query Problem & Bulk Operations
+
+### Context & Goals
+Before continue with the phase 3 of this project, I decided to review the N+1 query problem presented in the `ingest_tracks` management command. The goal of this entry is to document why the anti-pattern emerged, which tools contributed to it (e.g., Pandas `iterrows()`, sequential `for` loops with ORM calls), and how it was solved using Django's bulk operations and in-memory data preparation.
+
+### Technical Implementation
+- **Root Cause Analysis:** The N×4 problem arose from combining `chunk.iterrows()` (row-by-row iteration) with `update_or_create()` inside the loop—each row triggered 4 SQL queries.
+- **Solution Pattern:** Separate data preparation (in memory) from database writes (bulk operations).
+- **Django ORM Tools Used:** `bulk_create()`, `update_conflicts=True`, `filter(spotify_id__in=...)` for batch retrieval.
+
+### 💡 Deep Dive: N+1 Problem, Its Causes, and the Bulk Solution
+
+#### 1. What is the N+1 Problem?
+The N+1 query problem occurs when the code executes **1 initial query** to fetch a list of objects, and then **N additional queries**—one per object—to fetch related data. The name comes from the total of queries: 1 + N queries.
+
+In my case, I had a **write-side variant**: instead of N+1 reads, I had **N×4 writes**—4 queries per row (2 for `Track`, 2 for `AudioFeatures` via `update_or_create`).
+
+#### 2. Why Did My Script Generate It?
+
+**2.1 Pandas `iterrows()`**
+I used `chunk.iterrows()` to iterate over each row of the DataFrame:
+
+```python
+for _, row in chunk.iterrows():
+    # ...
+```
+
+- `iterrows()` returns `(index, Series)` per row. Each `Series` is a new object, which adds overhead (extra memory usage and CPU time that does not contribute to the final result).
+- The loop is inherently **row-by-row** and sequential. Any database call inside this loop runs once per row.
+- Pandas docs warn that `iterrows()` is slow; for my use case, the main issue was not `iterrows()` itself but the **database calls inside the loop**.
+
+**2.2 The `for` Loop + ORM Anti-Pattern**
+The code I was using looked like this:
+
+```python
+for _, row in chunk.iterrows():
+    with transaction.atomic():
+        track, created = Track.objects.update_or_create(spotify_id=spotify_id, defaults=track_data)  # 2 queries
+        AudioFeatures.objects.update_or_create(track=track, defaults=features_data)  # 2 queries
+```
+
+- `update_or_create` does a `SELECT` to check existence, then an `INSERT` or `UPDATE`—2 queries per call.
+- With 2 models, that's **4 queries per row**.
+- For 1000 rows: **4000 sequential SQL queries** per chunk.
+
+**2.3 Transaction Overhead**
+`transaction.atomic()` was inside the loop, so I opened and committed a transaction for every row instead of once per chunk.
+
+#### 3. Solution with `bulk_create` and `update_conflicts`
+
+**3.1 In-Memory Preparation (No Database Calls)**
+The refactored loop only builds Python objects and stores them in lists/dicts without touching the database:
+
+```python
+tracks_to_create = []
+features_data_map = {}  # spotify_id -> features_data
+seen_spotify_ids = set()
+
+for _, row in chunk.iterrows():
+    # ... extract track_data, spotify_id, features_data ...
+    if spotify_id in seen_spotify_ids:
+        continue
+    seen_spotify_ids.add(spotify_id)
+
+    track = Track(spotify_id=spotify_id, **track_data)
+    tracks_to_create.append(track)
+    features_data_map[spotify_id] = features_data
+```
+
+No `update_or_create`, no `save()`, no queries, only in-memory preparation.
+
+**3.2 Bulk Upsert of Tracks**
+All tracks in the chunk are sent in a single SQL statement:
+
+```python
+Track.objects.bulk_create(
+    tracks_to_create,
+    update_conflicts=True,
+    unique_fields=['spotify_id'],
+    update_fields=['title', 'artist_name', 'album_name']
+)
+```
+
+PostgreSQL executes something like:
+
+```sql
+INSERT INTO api_track (spotify_id, title, ...) VALUES (...), (...), (...)
+ON CONFLICT (spotify_id) DO UPDATE SET title = EXCLUDED.title, ...
+```
+
+**3.3 Retrieve Track IDs for Foreign Keys**
+`AudioFeatures` needs the database `id` of each `Track`. I fetched them in one query using the `__in` lookup:
+
+```python
+spotify_ids = list(features_data_map.keys())
+tracks_db = Track.objects.filter(spotify_id__in=spotify_ids)
+```
+
+- `spotify_id__in` uses Django's lookup syntax: `__` separates field and lookup; `in` maps to SQL `IN (...)`.
+- One `SELECT` returns all matching tracks with their UUIDs.
+
+**3.4 Bulk Upsert of AudioFeatures**
+I built `AudioFeatures` instances and inserted them in one call:
+
+```python
+features_to_create = []
+for track_db in tracks_db:
+    f_data = features_data_map[track_db.spotify_id]
+    features_to_create.append(AudioFeatures(track=track_db, **f_data))
+
+AudioFeatures.objects.bulk_create(
+    features_to_create,
+    update_conflicts=True,
+    unique_fields=['track'],
+    update_fields=list(self.FEATURES_MAP.values())
+)
+```
+
+**Summary:** 3 queries per chunk instead of 4000—roughly 28× faster in my tests.
+
+### Next Steps
+- Consider replacing `iterrows()` with `itertuples()` or vectorized operations if row iteration remains a bottleneck.
+- Apply this bulk-processing pattern to future ingestion or batch jobs.
 
 ---
 
