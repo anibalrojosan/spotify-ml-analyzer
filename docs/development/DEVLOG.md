@@ -7,6 +7,7 @@ The goal is to maintain transparency throughout the process and generate a clear
 
 ## Index
 
+* [**[2026-03-20]** - Phase 2-04: Declaring API Contract with the Frontend in Simulation Mode](#2026-03-20---phase-2-04-declaring-api-contract-with-the-frontend-in-simulation-mode)
 * [**[2026-03-20]** - REVIEW: N+1 Query Problem & Bulk Operations](#2026-03-20---review-n1-query-problem--bulk-operations)
 * [**[2026-03-18]** - Refactor: Massive Performance Optimization for CSV Ingestion](#2026-03-18---refactor-massive-performance-optimization-for-csv-ingestion)
 * [**[2026-03-17]** - REVIEW: Django Rest Framework (DRF)](#2026-03-17---review-django-rest-framework-drf)
@@ -25,6 +26,31 @@ The goal is to maintain transparency throughout the process and generate a clear
 * [**[2025-12-29]** - Data Acquisition Strategy & Initial EDA Pipeline](#2025-12-29---data-acquisition-strategy-and-initial-eda-pipeline)
 * [**[2025-12-26]** - Day 1: Walking Skeleton](#2025-12-26---day-1-walking-skeleton)
 * [**[2025-12-26]** - Step 0](#2025-12-26---step-0)
+
+---
+
+## [2026-03-20] - Phase 2-04: Declaring API Contract with the Frontend in Simulation Mode
+
+### Context & Goals
+While working on **Phase 2-04** (`feat/api-profile-endpoints`), the mock stack from **Phase 2-03** (`MockSessionAuthentication`, `MockLoginView`, `MeView`, serializers) was easy to lose track of across files. I decided to formalize the API contract with the frontend in simulation mode. The frontend needs a **single, explicit contract** for simulation mode—URLs, JSON shapes, cookie/session behavior, and how `request.user` is populated—without reading Django settings and DRF internals each time. The goal was to capture those decisions in one document before implementing `/api/profile/...`.
+
+### Technical Implementation
+- **New documentation:** Added `docs/Frontend/API_CONTRACT.md` as the canonical reference for simulation-mode API consumption.
+- **Navigation:** Included a table of contents with stable HTML anchors, relative links to backend sources (`authentication.py`, `views.py`, `serializers.py`, `models.py`, `urls.py`, `settings.py`, `seed_archetypes.py`), and links to this DEVLOG.
+- **Diagrams:** Embedded three **Mermaid** diagrams—component flow (request -> session -> auth -> `UserSerializer`), sequence (`POST /api/auth/mock-login/` then `GET /api/auth/me/`), and the `/me/` 401 decision path.
+- **Contract tables:** Documented HTTP methods/paths and the `User` / nested `Archetype` JSON fields aligned with `UserSerializer` and `ArchetypeSerializer`, including what is intentionally *not* exposed (`min_values` / `max_values` on auth responses).
+- **Operational checklist:** Frontend-focused items (`credentials: 'include'`, hydrate via `/me/`, QA slug override).
+
+### 💡 Deep Dive: Documentation as the Integration Boundary
+
+An **API contract** document is not a substitute for OpenAPI or tests, but it fixes the *social* boundary between backend and frontend: it states what the client may rely on (field names, auth mechanism, error shape) versus what is implementation detail (ORM layout, session key names inside Django). For mock mode, that boundary matters because:
+- `request.user` is a **`UserProfile`**, not `django.contrib.auth.models.User`
+- Persistence is a **session cookie**, not a Bearer token
+
+Writing that down reduces regressions when Phase 2-04 adds profile endpoints: new serializers can extend the API Contract document under a “Profile API” section without rewriting the auth narrative.
+
+### Next Steps
+- Continue with the implementation of **Phase 2-04** endpoints (`GET /api/profile/summary/`, `GET /api/profile/tracks/`) and extend `API_CONTRACT.md` with their schemas and latency notes.
 
 ---
 
